@@ -1,0 +1,17 @@
+{
+    "name": "burzum/Payments",
+    "type": "cakephp-plugin",
+    "description": "Payments API Base Library for CakePHP",
+    "keywords": ["cakephp","payments"],
+    "homepage": "http://github.com/burzum/Payments",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Florian Krämer",
+            "homepage": "http://github.com/burzum/Payments"
+        }
+    ],
+    "require": {
+        "composer/installers": "*"
+    }
+}
