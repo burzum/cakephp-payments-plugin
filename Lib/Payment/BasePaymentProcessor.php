@@ -257,12 +257,13 @@ abstract class BasePaymentProcessor extends Object {
 	}
 
 /**
- * Check of the processor supports subscriptions
+ * Check of the processor supports a certain interface
  *
+ * @param string $interfaceName
  * @return boolean
  */
-	public function supportsRecurringPayments() {
-		return in_array('RecurringPaymentsInterface', class_implements($this));
+	public function supports(string $interfaceName) {
+		return in_array($interfaceName . 'Interface', class_implements($this));
 	}
 
 /**
