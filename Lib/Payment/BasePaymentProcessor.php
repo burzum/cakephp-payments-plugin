@@ -96,6 +96,15 @@ abstract class BasePaymentProcessor extends Object {
 	}
 
 /**
+ * Empties the fields
+ *
+ * @return void
+ */
+	public function flushFields() {
+		$this->_fields = array();
+	}
+
+/**
  * Sets data for API calls
  *
  * @param string $field
