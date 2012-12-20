@@ -8,21 +8,39 @@
  */
 class Curl {
 
+/**
+ * Curl handler
+ *
+ * @var resource
+ */
 	protected $_handler = null;
 
+/**
+ * Curl constants mapping
+ *
+ * @var array
+ */
 	protected $_curlConstants = array();
 
+/**
+ * Constructor
+ *
+ * @throws RuntimeException
+ * @return Curl
+ */
 	public function __construct() {
 		if (!function_exists('curl_init')) {
 			throw new RuntimeException('Curl is not installed!');
 		}
+
 		$this->init();
+		$this->buildCurlConstants();
 	}
 
 /**
  *
  */
-	protected function buildCurlConstancts() {
+	protected function buildCurlConstants() {
 		$constants = get_defined_constants(true);
 		foreach ($constants['curl'] as $key => $value) {
 			if (strpos($key, 'CURLOPT_') === 0) {
@@ -45,17 +63,26 @@ class Curl {
 		return $this->_handler;
 	}
 
-	public function post($uri = null, $data = array(), $request) {
+	public function post($uri = null, $data = array(), $request = array()) {
 		return $this->request(array_merge(array('method' => 'POST', 'uri' => $uri, 'body' => $data), $request));
 	}
 
 	public function setOption($option, $value) {
-		$option = 'CURLOPT_' . strtoupper($option);
+		$option = strtoupper($option);
 		if (!isset($this->_curlConstants[$option])) {
 			throw new InvalidArgumentException(sprintf('Invalid cURL option %s!', $option));
 		}
 
 		curl_setopt($this->_handler, $this->_curlConstants[$option], $value);
+	}
+
+/**
+ * Returns the last error code and message
+ */
+	public function getLastError() {
+		return array(
+			'code' => curl_errno($this->_handler),
+			'message' => curl_error($this->_handler));
 	}
 
 /**

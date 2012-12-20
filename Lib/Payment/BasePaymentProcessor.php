@@ -120,7 +120,7 @@ abstract class BasePaymentProcessor extends Object {
  * @param mixed $value
  * @return void
  */
-	public function set(string $field, $value = null) {
+	public function set($field, $value = null) {
 		if (is_array($field)) {
 			$this->_fields = array_merge($this->_fields, $field);
 			return;
@@ -140,10 +140,10 @@ abstract class BasePaymentProcessor extends Object {
  * @throws PaymentProcessorException
  * @return boolean
  */
-	public function validateFields(string $action) {
+	public function validateFields($action) {
 		if (isset($this->_fields[$action])) {
 			foreach($this->_fields[$action] as $field => $options) {
-				if (!is_array($options['type'])) {
+				if (!isset($options['type'])) {
 					throw new PaymentProcessorException(__('No data type(s) defined for value %s!', $field));
 				}
 
@@ -155,7 +155,7 @@ abstract class BasePaymentProcessor extends Object {
 
 				if (isset($options['type'])) {
 					if (is_string($options['type'])) {
-						$field['type'] = array($options['type']);
+						$options['type'] = array($options['type']);
 					}
 
 					foreach ($options['type'] as $type) {
@@ -262,28 +262,28 @@ abstract class BasePaymentProcessor extends Object {
  * @param string $interfaceName
  * @return boolean
  */
-	public function supports(string $interfaceName) {
+	public function supports($interfaceName) {
 		return in_array($interfaceName . 'Interface', class_implements($this));
 	}
 
 /**
  *
  */
-	abstract public function pay();
+	abstract public function pay(array $options);
 
 /**
  *
  */
-	abstract public function callback();
+	//abstract public function callback();
 
 /**
  *
  */
-	abstract public function refund();
+	//abstract public function refund();
 
 /**
  *
  */
-	abstract public function cancel();
+	//abstract public function cancel();
 
 }

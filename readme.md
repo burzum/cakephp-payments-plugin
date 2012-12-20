@@ -6,7 +6,7 @@ This plugin is thought to provide a generic API for different payment processors
 
 The idea is to wrap every payment processor into the same interface so that it becomes immediately usable by every developer who is familiar with this API, removing the need to learn all the different payment providers and their specific APIs.
 
-It might become possible that there will be an independent non CakePHP version too in the future.
+It might become possible that there will be an independent non CakePHP version in the future. It is already built with a less as possible CakePHP dependencies to make this possible without a lot work.
 
 Contributions are welcome!
 
@@ -26,7 +26,7 @@ Please create a ticket on github or send an email if you want to get your proces
 
 Contact us to get your plugin reviewed and added to this list if it matches the acceptance criteria. A good processor has proper value validation, error handling and logging.
 
-There are not commercial processors available yet.
+There are no commercial processors available yet.
 
 ## Implementing your processor based on this API
 
@@ -38,6 +38,22 @@ All of the following steps are considered as required to write a proper and as g
 * Use the PaymentApiLog to log payment related messages
 
 Contact us to get your processor reviewed and added to this list if it matches the acceptance criterias.
+
+### Recommended field names
+
+To make it easier for everyone to use different processors without the need to map the fields of the app to all the processors in a different way the following field names are recommended:
+
+Generic fields:
+
+* amount
+* description
+
+For Credit Card processors
+
+* card_number
+* card_code
+* card_holder
+* card_expiration_date
 
 ## Support
 
