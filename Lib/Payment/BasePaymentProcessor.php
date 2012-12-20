@@ -58,10 +58,19 @@ abstract class BasePaymentProcessor extends Object {
 
 /**
  * CakeResponse object instance
- * 
+ *
  * @var CakeResponse
  */
 	protected $_response;
+
+/**
+ * Internal Payment API Version
+ *
+ * Can be used for checks to keep a processor compatible for different versions
+ *
+ * @var string
+ */
+	protected $_apiVersion = '1.0';
 
 /**
  * Values to be used by the API implementation
@@ -118,7 +127,6 @@ abstract class BasePaymentProcessor extends Object {
 		}
 
 		$this->_fields[$field] = $value;
-		return;
 	}
 
 /**
@@ -260,29 +268,21 @@ abstract class BasePaymentProcessor extends Object {
 /**
  *
  */
-	public function pay() {
-		return;
-	}
+	abstract public function pay();
 
 /**
  *
  */
-	public function callback() {
-		return;
-	}
+	abstract public function callback();
 
 /**
  *
  */
-	public function refund() {
-		return;
-	}
+	abstract public function refund();
 
 /**
  *
  */
-	public function cancel() {
-		return;
-	}
+	abstract public function cancel();
 
 }

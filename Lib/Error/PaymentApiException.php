@@ -7,5 +7,8 @@
  * @license MIT
  */
 class PaymentApiException extends CakeException {
-	
+
+	public $apiErrorCode = null;
+	public $apiErrorMessage = null;
+	public $apiErrorReason = null;
 }
