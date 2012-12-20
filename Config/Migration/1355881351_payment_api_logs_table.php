@@ -18,7 +18,7 @@ class PaymentApiLogsTable extends CakeMigration {
 	public $migration = array(
 		'up' => array(
 			'create_table' => array(
-				'payment_api_log' => array(
+				'payment_api_logs' => array(
 					'id' => array('type'=>'string', 'null' => false, 'default' => NULL, 'length' => 36, 'key' => 'primary'),
 					'order_id' => array('type'=>'string', 'null' => false, 'default' => NULL, 'length' => 36),
 					'token' => array('type'=>'string', 'null' => false, 'default' => NULL),
@@ -28,6 +28,8 @@ class PaymentApiLogsTable extends CakeMigration {
 					'file' => array('type'=>'text', 'null' => true, 'default' => NULL),
 					'line' => array('type'=>'integer', 'null' => true, 'default' => NULL, 'length' => 6),
 					'trace' => array('type'=>'text', 'null' => true, 'default' => NULL),
+					'post' => array('type'=>'text', 'null' => true, 'default' => NULL),
+					'get' => array('type'=>'text', 'null' => true, 'default' => NULL),
 					'created' => array('type'=>'datetime', 'null' => true, 'default' => NULL),
 					'indexes' => array(
 						'PRIMARY' => array('column' => 'id', 'unique' => 1),

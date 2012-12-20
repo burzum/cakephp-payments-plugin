@@ -1,26 +1,26 @@
 <?php
 /**
- * PaymentApiTransactionFixture
+ * PaymentApiLogFixture
  *
  * @author Florian Krämer
  * @copyright 2012 Florian Krämer
  * @license MIT
  */
-class PaymentApiTransactionFixture extends CakeTestFixture {
+class PaymentApiLogFixture extends CakeTestFixture {
 
 /**
  * Name
  *
  * @var string $name
  */
-	public $name = 'PaymentApiTransaction';
+	public $name = 'PaymentApiLog';
 
 /**
  * Table
  *
  * @var array $table
  */
-	public $table = 'payment_api_transactions';
+	public $table = 'payment_api_logs';
 
 /**
  * Fields
@@ -37,6 +37,8 @@ class PaymentApiTransactionFixture extends CakeTestFixture {
 		'file' => array('type'=>'text', 'null' => true, 'default' => NULL),
 		'line' => array('type'=>'integer', 'null' => true, 'default' => NULL, 'length' => 6),
 		'trace' => array('type'=>'text', 'null' => true, 'default' => NULL),
+		'post' => array('type'=>'text', 'null' => true, 'default' => NULL),
+		'get' => array('type'=>'text', 'null' => true, 'default' => NULL),
 		'created' => array('type'=>'datetime', 'null' => true, 'default' => NULL),
 		'indexes' => array(
 			'PRIMARY' => array('column' => 'id', 'unique' => 1),
