@@ -1,7 +1,5 @@
 <?php
 App::uses('Object', 'Core');
-App::uses('CakeResponse', 'Network');
-App::uses('CakeRequest', 'Network');
 App::uses('PaymentProcessorException', 'Payments.Error');
 App::uses('PaymentApiException', 'Payments.Error');
 App::uses('PaymentApiLog', 'Payments.Log');
@@ -66,10 +64,27 @@ abstract class BasePaymentProcessor extends Object {
 	protected $_response;
 
 /**
+ * Values to be used by the API implementation
+ *
+ * Structure of the array is:
+ * MethodName/VariableName/OptionsArray
+ *
+ * @var array
+ */
+	protected $_fields = array(
+		'pay' => array(
+			'amount' => array(
+				'required' => true,
+				'type' => array('integer', 'float')
+			),
+		),
+	);
+
+/**
  * Constructor
  *
  * @param array $options
- * @return \BasePaymentProcessor
+ * @return BasePaymentProcessor
  * @throws PaymentProcessorException
  */
 	public function __construct(array $options = array()) {
@@ -81,22 +96,100 @@ abstract class BasePaymentProcessor extends Object {
 	}
 
 /**
- * Callback to avoid overloading the constructor if you need app or processor specific changes
+ * Sets data for API calls
+ *
+ * @param string $field
+ * @param mixed $value
+ * @return void
+ */
+	public function set(string $field, $value = null) {
+		if (is_array($field)) {
+			$this->_fields = array_merge($this->_fields, $field);
+			return;
+		}
+
+		$this->_fields[$field] = $value;
+		return;
+	}
+
+/**
+ * Validates if all (required) values are set for an API call
+ *
+ * You really should validate if all values are set before you do anything in
+ * one of your methods to avoid the need to do a lot of manual checks on the
+ * set data and to ensure that your API call is going to get all required values
+ *
+ * @param string $action
+ * @throws PaymentProcessorException
+ * @return boolean
+ */
+	public function validateFields(string $action) {
+		if (isset($this->_fields[$action])) {
+			foreach($this->_fields[$action] as $field => $options) {
+				if (!is_array($options['type'])) {
+					throw new PaymentProcessorException(__('No data type(s) defined for value %s!', $field));
+				}
+
+				if (isset($options['required']) && $options['required'] === true) {
+					if (!isset($this->_fields[$field])) {
+						throw new PaymentProcessorException(__('Required value %s is not set!', $field));
+					}
+				}
+
+				if (isset($options['type'])) {
+					if (is_string($options['type'])) {
+						$field['type'] = array($options['type']);
+					}
+
+					foreach ($options['type'] as $type) {
+						if (!$this->validateType($type, $this->_fields[$field])) {
+							throw new PaymentProcessorException(__('Invalid data type for value %s!', $field));
+						}
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+
+/**
+ * Validates values against data types
+ *
+ * @param string $type
+ * @param mixed $value
+ * @return bool
+ */
+	public function validateType($type, $value) {
+		switch ($type) :
+			case 'string':
+				return is_string($value);
+			case 'integer':
+				return is_int($value);
+			case 'float':
+				return is_float($value);
+			case 'array':
+				return is_array($value);
+			case 'object':
+				return is_object($value);
+		endswitch;
+
+		return false;
+	}
+
+/**
+ * Callback to avoid overloading the constructor if you need to inject app or processor specific changes
  *
  * @param array $options
  * @return void
  */
 	protected function _initialize(array $options) {
-		if (!empty($options['request'])) {
+		if (isset($options['CakeRequest'])) {
 			$this->_request = $options['request'];
-		} else {
-			$this->_request = new CakeRequest();
 		}
 
-		if (!empty($options['response'])) {
+		if (isset($options['CakeResponse'])) {
 			$this->_response = $options['response'];
-		} else {
-			$this->_response = new CakeResponse();
 		}
 
 		return true;
@@ -124,7 +217,7 @@ abstract class BasePaymentProcessor extends Object {
 /**
  * Redirect
  *
- * @param string|array url to redirect to
+ * @param string $url Url to redirect to
  */
 	public function redirect($url) {
 		header('Location: ' . $url);
