@@ -66,11 +66,11 @@ abstract class BasePaymentProcessor extends Object {
 /**
  * Internal Payment API Version
  *
- * Can be used for checks to keep a processor compatible for different versions
+ * Can be used for checks to keep a processor compatible to different versions
  *
  * @var string
  */
-	protected $_apiVersion = '1.0';
+	private $__apiVersion = '1.0';
 
 /**
  * Values to be used by the API implementation
@@ -102,6 +102,16 @@ abstract class BasePaymentProcessor extends Object {
 		if (!$this->_initialize($options)) {
 			throw new PaymentProcessorException(__('Failed to initialize %s!', get_class($this)));
 		}
+	}
+
+/**
+ * Returns the Payments API version
+ *
+ * Use the return value of this method to compare versions to support more than
+ * one version of the payments library if you want within the same processor
+ */
+	protected function _version() {
+		return $this->__apiVersion;
 	}
 
 /**
@@ -269,21 +279,34 @@ abstract class BasePaymentProcessor extends Object {
 /**
  *
  */
-	abstract public function pay(array $options);
+	abstract public function pay($amount, array $options);
 
 /**
+ * This method is used to process API callbacks
  *
+ * API callbacks are usually notifications via HTTP POST or, less common get.
  */
-	//abstract public function callback();
+	abstract public function apiCallback(array $options);
 
 /**
+ * Refunds money
  *
+ * @param $paymentReference
+ * @param $amount
+ * @param string $comment
+ * @param array $options
+ * @return
+ * @internal param $float
  */
-	//abstract public function refund();
+	abstract public function refund($paymentReference, $amount, $comment = '', array $options);
 
 /**
+ * Cancels a payment
  *
+ * @param string $paymentReference
+ * @param array $options
+ * @return mixed
  */
-	//abstract public function cancel();
+	abstract public function cancel($paymentReference, array $options);
 
 }

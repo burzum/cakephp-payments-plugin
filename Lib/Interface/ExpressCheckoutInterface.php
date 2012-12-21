@@ -27,7 +27,6 @@ interface ExpressCheckoutInterface {
  *  - on success: the current url with "express-checkout-return" named param set to any value (e.g payment provider name)
  *  - on error: the url passed in $options['cancelUrl']
  * 
- * @throws LogicException When the cart content is invalid
  * @throws InvalidArgumentException When there are missing parameters to do the checkout
  * @throws RuntimeException When an unexpected error occurs
  * @param string $data Cart to checkout with exhaustive information (cf Cart::getExhaustiveCartInfo() return value)
@@ -62,7 +61,6 @@ interface ExpressCheckoutInterface {
  * Step 3 of the Express Checkout
  * Process to the payment. If an error occurred an exception must be thrown
  * 
- * @throws LogicException When the cart content is invalid
  * @throws InvalidArgumentException When there are incorrect parameters to do the payment
  * @throws RuntimeException When an unexpected error occurs
  * @param string $data Cart to checkout with exhaustive information (cf Cart::getExhaustiveCartInfo() return value)
