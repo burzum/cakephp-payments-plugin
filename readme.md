@@ -52,12 +52,12 @@ Not all of these fields are required by each processor. If they match what you n
 Generic fields:
 
 * amount
-* reason
-* reason2
 * currency
 * vat
-* payment_reference
 * subscription_reference
+* payment_reason
+* payment_reason2
+* payment_reference
 * sender_email
 * sender_first_name
 * sender_last_name

@@ -126,6 +126,21 @@ abstract class BasePaymentProcessor extends Object {
 	}
 
 /**
+ *
+ */
+	public function field($field, $required = false) {
+		if (!isset($this->_fields[$field])) {
+			if ($required === true) {
+				throw new PaymentProcessorException(__('Required value %s is not set!', $field));
+			} else {
+				return '';
+			}
+		}
+
+		return $this->_fields[$field];
+	}
+
+/**
  * Validates if all (required) values are set for an API call
  *
  * You really should validate if all values are set before you do anything in
@@ -154,10 +169,16 @@ abstract class BasePaymentProcessor extends Object {
 						$options['type'] = array($options['type']);
 					}
 
+					$typeFound = false;
 					foreach ($options['type'] as $type) {
-						if (!$this->validateType($type, $this->_fields[$field])) {
-							throw new PaymentProcessorException(__('Invalid data type for value %s!', $field));
+						if ($this->validateType($type, $this->_fields[$field])) {
+							$typeFound = true;
+							break;
 						}
+					}
+
+					if ($typeFound === false) {
+						throw new PaymentProcessorException(__('Invalid data type for value %s!', $field));
 					}
 				}
 			}
@@ -198,11 +219,11 @@ abstract class BasePaymentProcessor extends Object {
  */
 	protected function _initialize(array $options) {
 		if (isset($options['CakeRequest'])) {
-			$this->_request = $options['request'];
+			$this->_request = $options['CakeRequest'];
 		}
 
 		if (isset($options['CakeResponse'])) {
-			$this->_response = $options['response'];
+			$this->_response = $options['CakeRequest'];
 		}
 
 		return true;
