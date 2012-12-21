@@ -70,14 +70,14 @@ Generic fields:
 * receiver_country
 * receiver_iban - Bank account number
 * receiver_bic - Bank id
-* receiver_account_id - Can be used for payment system using something else than email or iban/bic
+* receiver_account_id - Can be used for payment systems using something else than email or iban/bic
 
 For Credit Card processors
 
 * card_number
 * card_code
 * card_holder
-* card_expiration_date
+* card_expiration_date - Format: (MM-YYYY)
 
 For recurring payments
 

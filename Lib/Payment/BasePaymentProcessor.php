@@ -50,20 +50,6 @@ abstract class BasePaymentProcessor extends Object {
 	public $finishUrl = '/';
 
 /**
- * CakeRequest object instance
- * 
- * @var CakeRequest
- */
-	protected $_request;
-
-/**
- * CakeResponse object instance
- *
- * @var CakeResponse
- */
-	protected $_response;
-
-/**
  * Internal Payment API Version
  *
  * Can be used for checks to keep a processor compatible to different versions
@@ -277,7 +263,11 @@ abstract class BasePaymentProcessor extends Object {
 	}
 
 /**
+ * Method to initialize (for processor like paypal) or send the payment directly
  *
+ * @param float $amount
+ * @param array $options
+ * @return
  */
 	abstract public function pay($amount, array $options);
 
@@ -285,8 +275,10 @@ abstract class BasePaymentProcessor extends Object {
  * This method is used to process API callbacks
  *
  * API callbacks are usually notifications via HTTP POST or, less common get.
+ *
+ * This method should return a payment status
  */
-	abstract public function apiCallback(array $options);
+	abstract public function notificationCallback(array $options);
 
 /**
  * Refunds money
