@@ -9,18 +9,27 @@
 interface RecurringPaymentsInterface {
 
 /**
+ * Cancels a subscription
  *
+ * @param string
+ * @param array
  */
-	public function cancelSubscription($id, array $options = array());
+	public function cancelSubscription($transactionReference, array $options = array());
 
 /**
+ * Creates a new subscription
  *
+ * @param array $options
+ * @return
  */
-	public function createSubscription($data);
+	public function createSubscription($options = array());
 
 /**
+ * Updates a subscription
  *
+ * @param string
+ * @param array
  */
-	public function updateSubscription($data);
+	public function updateSubscription($transactionReference, $options = array());
 
 }

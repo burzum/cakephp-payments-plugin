@@ -22,7 +22,7 @@ This plugin is just an API and set of interfaces it does not contain any process
 
 Please create a ticket on github or send an email if you want to get your processor on this list.
 
- * Sofort.de http://github.com/burzum/Sofort
+ * Sofort.de (MIT License) - http://github.com/burzum/Sofort
 
 ### List of Commercial Payment Processors using this API
 
@@ -34,7 +34,8 @@ There are no commercial processors available yet.
 
 All of the following steps are considered as required to write a proper and as good as possible fail save and easy to use payment processor:
 
-* Your processer has to extend BasePaymentProcessor and use the interfaces as needed
+* Your processor has to extend BasePaymentProcessor and use the interfaces as needed
+* Your processor must not have any application specific or dependant code in it
 * You have to use set() to set values for the API / processor and validateValues() to check if all required values for a call are present
 * You have to use the Exceptions from the Payments plugin to encapsulate payment gateway API errors and payment processor issues
 * You have to map the payment statuses from the foreign APIs to the constants of the PaymentStatus class and return them instead the foreign statuses
@@ -54,7 +55,6 @@ Generic fields:
 * amount
 * currency
 * vat
-* subscription_reference
 * payment_reason
 * payment_reason2
 * payment_reference
@@ -64,13 +64,20 @@ Generic fields:
 * receiver_email
 * receiver_first_name
 * receiver_last_name
+* receiver_phone
 * receiver_street
-* receiver_street2
+* receiver_address
+* receiver_address2
 * receiver_zip
 * receiver_country
+* receiver_state
 * receiver_iban - Bank account number
 * receiver_bic - Bank id
 * receiver_account_id - Can be used for payment systems using something else than email or iban/bic
+* billing_zip
+* billing_city
+* billing_country
+* billing_state
 
 For Credit Card processors
 
@@ -81,6 +88,8 @@ For Credit Card processors
 
 For recurring payments
 
+* subscription_reference
+* recurring_trial_amount
 * recurring_start_data
 * recurring_end_date
 * recurring_interval

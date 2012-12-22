@@ -78,12 +78,13 @@ abstract class BasePaymentProcessor extends Object {
 /**
  * Constructor
  *
+ * @param PaymentProcessorConfig $config
  * @param array $options
  * @return BasePaymentProcessor
  * @throws PaymentProcessorException
  */
-	public function __construct(array $options = array()) {
-		$this->config($options);
+	public function __construct(PaymentProcessorConfig $config, array $options = array()) {
+		$this->config($config);
 
 		if (!$this->_initialize($options)) {
 			throw new PaymentProcessorException(__('Failed to initialize %s!', get_class($this)));
@@ -96,7 +97,7 @@ abstract class BasePaymentProcessor extends Object {
  * Use the return value of this method to compare versions to support more than
  * one version of the payments library if you want within the same processor
  */
-	protected function _version() {
+	final protected function _version() {
 		return $this->__apiVersion;
 	}
 
@@ -126,14 +127,37 @@ abstract class BasePaymentProcessor extends Object {
 	}
 
 /**
+ * Unsets a field
  *
+ * @param string $field
+ * @return void
  */
-	public function field($field, $required = false) {
+	public function unsetField($field) {
+		unset($this->_fields[$field]);
+	}
+
+/**
+ * Gets a field value from the set fields
+ *
+ * @param string $field
+ * @param array $options
+ * @return mixed
+ * @throws PaymentProcessorException
+ */
+	public function field($field, $options = array()) {
+		$defaultOptions = array(
+			'required' => false,
+			'default' => '');
+
+		$options = array_merge($defaultOptions, $options);
+
 		if (!isset($this->_fields[$field])) {
-			if ($required === true) {
+			if ($options['required'] === true) {
 				throw new PaymentProcessorException(__('Required value %s is not set!', $field));
-			} else {
-				return '';
+			}
+
+			if ($options['default'] !== null) {
+				return $options['default'];
 			}
 		}
 
@@ -230,22 +254,14 @@ abstract class BasePaymentProcessor extends Object {
 	}
 
 /**
- * Sets configuration data
+ * Sets configuration data, override it as needed
  *
  * @param array $config
- * @param boolean $merge
+ * @internal param bool $merge
  * @return void
  */
-	public function config(array $config = array(), $merge = false) {
-		if (empty($config)) {
-			$config = (array) Configure::read(get_class($this));
-		}
-
-		if ($merge === true) {
-			$this->config = array_merge($this->config, $config);
-		} else {
-			$this->config = $config;
-		}
+	public function config($config) {
+		$this->config = $config;
 	}
 
 /**
@@ -290,16 +306,16 @@ abstract class BasePaymentProcessor extends Object {
  * @param array $options
  * @return
  */
-	abstract public function pay($amount, array $options);
+	abstract public function pay($amount, array $options = array());
 
 /**
  * This method is used to process API callbacks
  *
- * API callbacks are usually notifications via HTTP POST or, less common get.
+ * API callbacks are usually notifications via HTTP POST or less common GET.
  *
  * This method should return a payment status
  */
-	abstract public function notificationCallback(array $options);
+	abstract public function notificationCallback(array $options = array());
 
 /**
  * Refunds money
@@ -311,7 +327,7 @@ abstract class BasePaymentProcessor extends Object {
  * @return
  * @internal param $float
  */
-	abstract public function refund($paymentReference, $amount, $comment = '', array $options);
+	abstract public function refund($paymentReference, $amount, $comment = '', array $options = array());
 
 /**
  * Cancels a payment
@@ -320,6 +336,6 @@ abstract class BasePaymentProcessor extends Object {
  * @param array $options
  * @return mixed
  */
-	abstract public function cancel($paymentReference, array $options);
+	abstract public function cancel($paymentReference, array $options = array());
 
 }

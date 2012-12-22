@@ -11,11 +11,21 @@ interface CreditCardPaymentInterface {
 /**
  *
  */
-	public function authorize($data);
+	public function authorize();
 
 /**
  *
  */
-	public function capture($data);
+	public function capture();
+
+/**
+ *
+ */
+	public function void($transactionId);
+
+/**
+ *
+ */
+	public function echeck($transactionId);
 
 }
