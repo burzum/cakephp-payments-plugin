@@ -35,11 +35,12 @@ class PaymentProcessors {
  * Loads a new payment processor
  *
  * @param string $processor
+ * @param $config
  * @param array $options
- * @return Processor Instance
  * @throws MissingPaymentProcessorException
+ * @return Processor Instance
  */
-	public function load($processor, $options = array()) {
+	public function load($processor, $config, $options = array()) {
 		$_this = PaymentProcessors::getInstance();
 
 		if (substr($processor, -9) != 'Processor') {
@@ -59,7 +60,7 @@ class PaymentProcessors {
 				'plugin' => substr($plugin, 0, -1)));
 		}
 
-		$_this->_loaded[$processor] = new $class($options);
+		$_this->_loaded[$processor] = new $class($config, $options);
 		return $_this->_loaded[$processor];
 	}
 

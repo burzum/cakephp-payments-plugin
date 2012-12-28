@@ -1,39 +1,49 @@
 <?php
 /**
+ * The payment processor config class handles different configuration sets and
+ * sandbox configurations for payment processors and error handling in the
+ * case of missing configuration sets
  *
+ * @author Florian Krämer
+ * @copyright 2012 Florian Krämer
+ * @license MIT
  */
 class PaymentProcessorConfig implements ArrayAccess {
-
+/**
+ *
+ */
 	protected $_sandboxMode = false;
 
+/**
+ *
+ */
 	protected $_sandboxConfig = array();
 
+/**
+ *
+ */
 	protected $_liveConfig = array();
 
+/**
+ *
+ */
 	protected $_activeConfig = 'default';
 
+/**
+ *
+ */
+	protected $_requiredFields = array();
+
+/**
+ *
+ */
 	public function __construct($configData, $name = 'default' , $sandbox = false) {
 		$this->setConfig($configData, $name, $sandbox);
 	}
 
 /**
- * Sets and gets the sandbox mode
  *
- * @param mixed boolean|null $useIt
- * @return boolean
  */
-	public function sandboxMode($useIt = null) {
-		if (is_null($useIt)) {
-			return $this->_sandboxMode;
-		}
-
-		if ($useIt === true) {
-			$this->_sandboxMode = true;
-		} else {
-			$this->_sandboxMode = false;
-		}
-	}
-
 	public function uses($configName = 'default', $sandbox = false) {
 		if ($this->_sandboxMode === true || $sandbox === true) {
 			if (!isset($this->_sandboxConfig[$configName])) {
@@ -48,7 +58,29 @@ class PaymentProcessorConfig implements ArrayAccess {
 		}
 	}
 
+/**
+ * Validates that all configuration is present
+ *
+ * @param $configData
+ * @throws InvalidArgumentException
+ * @return void
+ */
+	protected function _validateFields($configData) {
+		$passedFields = array_keys($configData);
+
+		foreach ($this->_requiredFields as $requiredField) {
+			if (!in_array($requiredField, $passedFields)) {
+				throw new InvalidArgumentException(sprintf('Missing configuration value for %s!', $requiredField));
+			}
+		}
+	}
+
+/**
+ *
+ */
 	public function setConfig($configData, $configName, $sandbox = false) {
+		$this->_validateFields($configData);
+
 		if ($sandbox) {
 			$this->_sandboxConfig[$configName] = $configData;
 		} else {
@@ -56,14 +88,21 @@ class PaymentProcessorConfig implements ArrayAccess {
 		}
 	}
 
+/**
+ *
+ */
 	protected function _getConfigString() {
 		$config = '_liveConfig';
 		if ($this->_sandboxMode === true) {
 			$config = '_sandboxConfig';
 		}
+
 		return $config;
 	}
 
+/**
+ *
+ */
 	public function offsetSet($offset, $value) {
 		$config = $this->_getConfigString();
 
@@ -74,16 +113,25 @@ class PaymentProcessorConfig implements ArrayAccess {
 		}
 	}
 
+/**
+ *
+ */
 	public function offsetExists($offset) {
 		$config = $this->_getConfigString();
 		return isset($this->{$config}[$this->_activeConfig][$offset]);
 	}
 
+/**
+ *
+ */
 	public function offsetUnset($offset) {
 		$config = $this->_getConfigString();
 		unset($this->{$config}[$this->_activeConfig][$offset]);
 	}
 
+/**
+ *
+ */
 	public function offsetGet($offset) {
 		$config = $this->_getConfigString();
 		return isset($this->{$config}[$this->_activeConfig][$offset]) ? $this->{$config}[$this->_activeConfig][$offset] : null;

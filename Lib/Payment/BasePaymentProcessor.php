@@ -50,15 +50,6 @@ abstract class BasePaymentProcessor extends Object {
 	public $finishUrl = '/';
 
 /**
- * Internal Payment API Version
- *
- * Can be used for checks to keep a processor compatible to different versions
- *
- * @var string
- */
-	private $__apiVersion = '1.0';
-
-/**
  * Values to be used by the API implementation
  *
  * Structure of the array is:
@@ -76,6 +67,46 @@ abstract class BasePaymentProcessor extends Object {
 	);
 
 /**
+ *
+ */
+	protected $_transactionId = null;
+
+/**
+ *
+ */
+	protected $_subscriptionId = null;
+
+/**
+ *
+ */
+	protected $_rawResponse = null;
+
+/**
+ * Sandbox mode
+ *
+ * Used for check if a processor is in sandbox / testing mode or not, this
+ * is important for a lot of processor to toggle between live and sandbox
+ * API callbacks and URLs
+ *
+ * @var mixed boolean
+ */
+	protected $_sandboxMode = false;
+
+/**
+ *
+ */
+	protected $_configFields = array();
+
+/**
+ * Internal Payment API Version
+ *
+ * Can be used for checks to keep a processor compatible to different versions
+ *
+ * @var string
+ */
+	private $__apiVersion = '1.0';
+
+/**
  * Constructor
  *
  * @param PaymentProcessorConfig $config
@@ -83,12 +114,77 @@ abstract class BasePaymentProcessor extends Object {
  * @return BasePaymentProcessor
  * @throws PaymentProcessorException
  */
-	public function __construct(PaymentProcessorConfig $config, array $options = array()) {
-		$this->config($config);
+	public function __construct($config, array $options = array()) {
+		if (!$this->configure($config)) {
+			throw new PaymentProcessorException(__('Failed to configure %s!', get_class($this)));
+		}
 
 		if (!$this->_initialize($options)) {
 			throw new PaymentProcessorException(__('Failed to initialize %s!', get_class($this)));
 		}
+	}
+
+/**
+ * Sets and gets the sandbox mode
+ *
+ * @param mixed boolean|null $sandboxMode
+ * @return boolean
+ * @throws RuntimeException
+ */
+	public function sandboxMode($sandboxMode = null) {
+		if (is_null($sandboxMode)) {
+			return $this->_sandboxMode;
+		}
+
+		if ($sandboxMode === true) {
+			$this->_sandboxMode = true;
+		} else {
+			$this->_sandboxMode = false;
+		}
+	}
+
+/**
+ * Validates that all required configuration fields are present
+ *
+ * @param array $configData
+ * @throws InvalidArgumentException
+ * @return void
+ */
+	protected function _validateConfig($configData) {
+		$passedFields = array_keys($configData);
+
+		foreach ($this->_configFields as $requiredField) {
+			if (!in_array($requiredField, $passedFields)) {
+				throw new InvalidArgumentException(sprintf('Missing configuration value for %s!', $requiredField));
+			}
+		}
+	}
+
+/**
+ * getTransactionId
+ *
+ * @return string
+ */
+	public function getTransactionId() {
+		return $this->_transactionId;
+	}
+
+/**
+ * getSubscriptionId
+ *
+ * @return string
+ */
+	public function getSubscriptionId() {
+		return $this->_subscriptionId;
+	}
+
+/**
+ * Get the raw API response
+ *
+ * @return mixed
+ */
+	public function getRawResponse() {
+		return $this->_subscriptionId;
 	}
 
 /**
@@ -256,12 +352,15 @@ abstract class BasePaymentProcessor extends Object {
 /**
  * Sets configuration data, override it as needed
  *
- * @param array $config
+ * PaymentProcessorConfig array $config
  * @internal param bool $merge
  * @return void
+ *
  */
-	public function config($config) {
+	public function configure(array $config = array()) {
+		$this->_validateConfig($config);
 		$this->config = $config;
+		return true;
 	}
 
 /**

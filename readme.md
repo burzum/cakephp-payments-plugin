@@ -22,7 +22,7 @@ This plugin is just an API and set of interfaces it does not contain any process
 
 Please create a ticket on github or send an email if you want to get your processor on this list.
 
- * Sofort.de (MIT License) - http://github.com/burzum/Sofort
+ * Sofort.de (LGPL License) - http://github.com/burzum/Sofort
 
 ### List of Commercial Payment Processors using this API
 
@@ -43,6 +43,30 @@ All of the following steps are considered as required to write a proper and as g
 * Use the PaymentApiLog to log payment related messages
 
 Contact us to get your processor reviewed and added to the processor list if it matches the acceptance criterias.
+
+### Configuration of Processors
+
+All Payment processors must follow this convention for configuration data
+
+	'SomePaymentProcessor' => array(
+		'sandboxMode' => false,
+		'live' => array(
+			'apiKey' => '11223:123456:h25lh252525hlhadslgh2362l6h2lsfg'
+			'apiId' => '151611574',
+			'...' => '...'
+		),
+		'sandbox' => array(
+			'apiKey' => '33221:652141:kl262lhsdgh15dslhgslhj325lhdsglsd'
+			'apiId' => '623512526',
+			'...' => '...'
+		),
+	),
+
+sandboxMode mode and live are required, sandbox also if a sandbox configuration is available. sandboxMode can be true or false to switch between live and sandbox configuration.
+
+### Sandbox mode
+
+You'll have to call YourPaymentProcessor::sandboxMode(true) or YourPaymentProcessor::sandboxMode(false) to set a payment processor into sandbox mode. This is important to toggle between live and sandbox settings and special testing variables and URLs most sandboxes require. To get the current state of a processor just call YourPaymentProcessor::sandboxMode() without passing an argument.
 
 ### Recommended field names
 
@@ -102,6 +126,24 @@ For recurring payments
 This plugin also comes with a Curl class to wrap the native php cURL functionality in object oriented fashion.
 
 Please use it instead of any other 3rd party libs in your processors.
+
+## Example of working with a processor
+
+## Usage
+
+First get an instance of your payment processor and pass configuration
+
+	$config = array('apiKey' => 'YOU-API-KEY');
+	$Processor = new YourPaymentProcessor($Config);
+
+Note that different processors might require different fields. But
+
+	$Processor->set('payment_reason', 'Order 123'); // required
+	$Processor->set('payment_reason2', 'Something here'); // optional
+
+Call the pay method.
+
+	$Processor->pay(15.99);
 
 ## Support
 
