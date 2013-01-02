@@ -12,7 +12,7 @@ App::uses('PaymentStatus', 'Payments.Payment');
  * @copyright 2012 Florian Krämer
  * @license MIT
  */
-abstract class BasePaymentProcessor extends Object {
+abstract class BasePaymentProcessor {
 
 /**
  * Configuration settings for this processor
@@ -64,20 +64,32 @@ abstract class BasePaymentProcessor extends Object {
 				'type' => array('integer', 'float')
 			),
 		),
+		'refund' => array(
+			'amount' => array(
+				'required' => true,
+				'type' => array('integer', 'float')
+			),
+		),
 	);
 
 /**
+ * Transaction Id for processors that return one
  *
+ * @var mixed
  */
 	protected $_transactionId = null;
 
 /**
+ * Subscription Id for processors that implement subscriptions
  *
+ * @var mixed
  */
 	protected $_subscriptionId = null;
 
 /**
+ * Raw response of a payment processor
  *
+ * @var mixed
  */
 	protected $_rawResponse = null;
 
@@ -93,9 +105,18 @@ abstract class BasePaymentProcessor extends Object {
 	protected $_sandboxMode = false;
 
 /**
+ * List of required configuration fields
  *
+ * @var array
  */
 	protected $_configFields = array();
+
+/**
+ * Log object instance
+ *
+ * @var object
+ */
+	protected $_log = null;
 
 /**
  * Internal Payment API Version
@@ -122,6 +143,8 @@ abstract class BasePaymentProcessor extends Object {
 		if (!$this->_initialize($options)) {
 			throw new PaymentProcessorException(__('Failed to initialize %s!', get_class($this)));
 		}
+
+		$this->_initializeLogging($options);
 	}
 
 /**
@@ -335,18 +358,34 @@ abstract class BasePaymentProcessor extends Object {
  * Callback to avoid overloading the constructor if you need to inject app or processor specific changes
  *
  * @param array $options
+ * @throws RuntimeException
  * @return void
  */
 	protected function _initialize(array $options) {
-		if (isset($options['CakeRequest'])) {
-			$this->_request = $options['CakeRequest'];
-		}
-
-		if (isset($options['CakeResponse'])) {
-			$this->_response = $options['CakeRequest'];
-		}
-
 		return true;
+	}
+
+/**
+ * Initializes the log object
+ *
+ * @param array $options
+ * @throws RuntimeException
+ * @return void
+ */
+	protected function _initializeLogging(array $options) {
+		if (isset($options['logObject'])) {
+			if (!isset($options['logObjectMethod'])) {
+				if (!method_exists($options['logObject'], 'write')) {
+					throw new RuntimeException(__('The log object must implement a method write($message, $logType)!'));
+				}
+
+				//$class = get_class($options['logObject']);
+				//$p = new ReflectionParameter(array($class, 'write'), 0);
+				//$p = new ReflectionParameter(array($class, 'write'), 0);
+			}
+		} else {
+			$this->_log = new CakeLog();
+		}
 	}
 
 /**
@@ -354,8 +393,8 @@ abstract class BasePaymentProcessor extends Object {
  *
  * PaymentProcessorConfig array $config
  * @internal param bool $merge
+ * @param array $config
  * @return void
- *
  */
 	public function configure(array $config = array()) {
 		$this->_validateConfig($config);
@@ -369,23 +408,24 @@ abstract class BasePaymentProcessor extends Object {
  * @param string $url Url to redirect to
  */
 	public function redirect($url) {
-		header('Location: ' . $url);
+		header('Location: ' . (string) $url);
 		exit();
 	}
 
 /**
- * Log
+ * Write to the log
  *
  * @param string $message
  * @param string $type
  * @return bool|void
  */
 	public function log($message, $type = null) {
-		if (empty($type)) {
-			$type = 'payments_' . Inflector::underscore(__CLASS__);
+		if (is_null($this->_log)) {
+			return false;
 		}
 
-		parent::log($message, $type);
+		$type = 'payments-' . Inflector::underscore(__CLASS__) . '-' . $type;
+		return $this->_log->write($message, $type);
 	}
 
 /**

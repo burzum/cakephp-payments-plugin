@@ -30,17 +30,19 @@ class Curl {
  */
 	public function __construct() {
 		if (!function_exists('curl_init')) {
-			throw new RuntimeException('Curl is not installed!');
+			throw new RuntimeException('cURL is not installed!');
 		}
 
 		$this->init();
-		$this->buildCurlConstants();
+		$this->_buildCurlConstants();
 	}
 
 /**
+ * Builds a list of cURL constant names in an array
  *
+ * @return void
  */
-	protected function buildCurlConstants() {
+	protected function _buildCurlConstants() {
 		$constants = get_defined_constants(true);
 		foreach ($constants['curl'] as $key => $value) {
 			if (strpos($key, 'CURLOPT_') === 0) {
@@ -51,7 +53,7 @@ class Curl {
 	}
 
 /**
- * Inits the curl handler
+ * Initializes the curl handler
  *
  * @return void
  */
@@ -59,16 +61,37 @@ class Curl {
 		$this->_handler = curl_init();
 	}
 
+/**
+ * Public interface to get the cURL handler
+ *
+ * @return null|resource
+ */
 	public function getHandler() {
 		return $this->_handler;
 	}
 
+/**
+ * Prepares and executes a POST request
+ *
+ * @param
+ * @param array $data
+ * @param array $request
+ * @return mixed
+ */
 	public function post($uri = null, $data = array(), $request = array()) {
 		return $this->request(array_merge(array('method' => 'POST', 'uri' => $uri, 'body' => $data), $request));
 	}
 
+/**
+ * Sets a cURL option
+ *
+ * @param string $option Name of the cURL option without the CURLOPT prefix
+ * @param mixed $value
+ * @return void
+ * @throws InvalidArgumentException Is thrown when the cURL option does not exist
+ */
 	public function setOption($option, $value) {
-		$option = strtoupper($option);
+		$option = strtoupper(str_replace('_', '', $option));
 		if (!isset($this->_curlConstants[$option])) {
 			throw new InvalidArgumentException(sprintf('Invalid cURL option %s!', $option));
 		}
@@ -78,6 +101,8 @@ class Curl {
 
 /**
  * Returns the last error code and message
+ *
+ * @return array
  */
 	public function getLastError() {
 		return array(
@@ -93,15 +118,23 @@ class Curl {
 
 		if ($request['method'] === 'POST') {
 			if (is_array($request['body'])) {
-				$request['body'] = http_parse_params($request['body']);
+				$params = '';
+				foreach ($request['body'] as $key => $value) {
+					$params .= '"' . $key . '"=' . $value . '"&';
+				}
 			}
-			$this->setOption('POSTFIELDS', $request['body']);
+			$this->setOption('POSTFIELDS', $params);
 			$this->setOption('POST', 1);
 		}
 
 		return curl_exec($this->_handler);
 	}
 
+/**
+ * Closes the current cURL handler and initializes it again
+ *
+ * @return void
+ */
 	public function reset() {
 		curl_close($this->_handler);
 		$this->init();
