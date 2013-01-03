@@ -1,6 +1,6 @@
 <?php
 /**
- * RecurringPaymentsInterface
+ * CreditCardPaymentInterface
  *
  * @author Florian Kramer
  * @copyright 2012 Florian Kramer
