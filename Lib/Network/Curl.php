@@ -116,14 +116,12 @@ class Curl {
 	public function request($request) {
 		$this->setOption('URL', $request['uri']);
 
+		if (is_array($request['body'])) {
+			$request['body'] = http_build_query($request['body']);
+		}
+
 		if ($request['method'] === 'POST') {
-			if (is_array($request['body'])) {
-				$params = '';
-				foreach ($request['body'] as $key => $value) {
-					$params .= '"' . $key . '"=' . $value . '"&';
-				}
-			}
-			$this->setOption('POSTFIELDS', $params);
+			$this->setOption('POSTFIELDS', $request['body']);
 			$this->setOption('POST', 1);
 		}
 

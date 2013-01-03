@@ -6,7 +6,7 @@
  * @copyright 2012 Florian Kramer
  * @license MIT
  */
-interface RecurringPaymentsInterface {
+interface RecurringPaymentInterface {
 
 /**
  * Cancels a subscription

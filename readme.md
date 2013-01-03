@@ -82,22 +82,25 @@ Generic fields:
 * payment_reason
 * payment_reason2
 * payment_reference
-* sender_email
-* sender_first_name
-* sender_last_name
-* receiver_email
-* receiver_first_name
-* receiver_last_name
-* receiver_phone
-* receiver_street
-* receiver_address
-* receiver_address2
-* receiver_zip
-* receiver_country
-* receiver_state
-* receiver_iban - Bank account number
-* receiver_bic - Bank id
-* receiver_account_id - Can be used for payment systems using something else than email or iban/bic
+* customer_email
+* customer_first_name
+* customer_last_name
+* customer_email
+* customer_first_name
+* customer_last_name
+* customer_phone
+* customer_street
+* customer_address
+* customer_address2
+* customer_zip
+* customer_country
+* customer_state
+* customer_description
+* customer_iban - Bank account number
+* customer_bic - Bank id
+* customer_account_id - Can be used for payment systems using something else than email or iban/bic
+* billing_address
+* billing_address2
 * billing_zip
 * billing_city
 * billing_country
@@ -108,18 +111,26 @@ For Credit Card processors
 * card_number
 * card_code
 * card_holder
-* card_expiration_date - Format: (MM-YYYY)
+* card_month - Expiration date month
+* card_year - Expiration date year
 
 For recurring payments
 
 * subscription_reference
 * recurring_trial_amount
-* recurring_start_data
-* recurring_end_date
+* recurring_start_data - Format: (YYYY-MM-DD)
+* recurring_end_date - Format: (YYYY-MM-DD)
 * recurring_interval
 * recurring_frequency
 * recurring_occurence
 * recurring_trial_occurence
+
+Custom fields:
+
+* custom1
+* custom2
+* custom3
+* ...
 
 ### cURL Wrapper
 
