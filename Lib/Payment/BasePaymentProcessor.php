@@ -57,7 +57,14 @@ abstract class BasePaymentProcessor {
  *
  * @var array
  */
-	protected $_fields = array(
+	protected $_fields = array();
+
+/**
+ * Validation rules
+ *
+ * @var array
+ */
+	protected $_fieldRules = array(
 		'pay' => array(
 			'amount' => array(
 				'required' => true,
@@ -295,8 +302,8 @@ abstract class BasePaymentProcessor {
  * @return boolean
  */
 	public function validateFields($action) {
-		if (isset($this->_fields[$action])) {
-			foreach($this->_fields[$action] as $field => $options) {
+		if (isset($this->_fieldRules[$action])) {
+			foreach($this->_fieldRules[$action] as $field => $options) {
 				if (isset($options['required']) && $options['required'] === true) {
 					if (!isset($this->_fields[$field])) {
 						throw new PaymentProcessorException(__('Required value %s is not set!', $field));

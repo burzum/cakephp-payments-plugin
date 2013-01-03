@@ -74,14 +74,14 @@ To make it easier for everyone to use different processors without the need to m
 
 Not all of these fields are required by each processor. If they match what you need use them. Do not use other names!
 
-Generic fields:
+#### Generic fields:
 
 * amount
 * currency
 * vat
 * payment_reason
 * payment_reason2
-* payment_reference
+* payment_reference - Mixed string|integer
 * customer_email
 * customer_first_name
 * customer_last_name
@@ -95,9 +95,9 @@ Generic fields:
 * customer_zip
 * customer_country
 * customer_state
-* customer_description
-* customer_iban - Bank account number
-* customer_bic - Bank id
+* customer_description - String
+* customer_iban - Integer, Bank account number
+* customer_bic - Integer, Bank id
 * customer_account_id - Can be used for payment systems using something else than email or iban/bic
 * billing_address
 * billing_address2
@@ -106,30 +106,32 @@ Generic fields:
 * billing_country
 * billing_state
 
-For Credit Card processors
+#### For Credit Card processors
 
-* card_number
-* card_code
-* card_holder
-* card_month - Expiration date month
-* card_year - Expiration date year
+* card_number Integer
+* card_code Integer, length 3 to 4
+* card_holder String
+* card_month - Integer, Format: 01, 02,..., 10, 12. Expiration date month
+* card_year - Integer, Format: YYYY, Processor should parse that to whatever it needs
 
-For recurring payments
+#### For recurring payments
 
-* subscription_reference
-* recurring_trial_amount
-* recurring_start_data - Format: (YYYY-MM-DD)
-* recurring_end_date - Format: (YYYY-MM-DD)
-* recurring_interval
-* recurring_frequency
-* recurring_occurence
-* recurring_trial_occurence
+* subscription_reference - Mixed string|integer
+* recurring_trial_amount - Float
+* recurring_start_data - String, Format: YYYY-MM-DD, Processor should parse that to whatever it needs
+* recurring_end_date - String, Format: YYYY-MM-DD, Processor should parse that to whatever it needs
+* recurring_interval - String, day, month, year, dayOfMonth, dayOfWeek, dayOfYear (singular)
+* recurring_frequency - Integer
+* recurring_occurence - Integer, number of times a payment will recur
+* recurring_trial_occurence - Integer
 
-Custom fields:
+recurring_interval and recurring_frequency together will allow you to define virtually any billing cycle. The processor muste translate the passed values to whatever the implemented API requires.
 
-* custom1
-* custom2
-* custom3
+#### Custom fields:
+
+* custom1 - Mixed
+* custom2 - Mixed
+* custom3 - Mixed
 * ...
 
 ### cURL Wrapper
