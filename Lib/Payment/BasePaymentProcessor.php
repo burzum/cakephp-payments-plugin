@@ -207,7 +207,7 @@ abstract class BasePaymentProcessor {
  * @return mixed
  */
 	public function getRawResponse() {
-		return $this->_subscriptionId;
+		return $this->_rawResponse;
 	}
 
 /**
@@ -266,7 +266,7 @@ abstract class BasePaymentProcessor {
 	public function field($field, $options = array()) {
 		$defaultOptions = array(
 			'required' => false,
-			'default' => '');
+			'default' => null);
 
 		$options = array_merge($defaultOptions, $options);
 
@@ -297,10 +297,6 @@ abstract class BasePaymentProcessor {
 	public function validateFields($action) {
 		if (isset($this->_fields[$action])) {
 			foreach($this->_fields[$action] as $field => $options) {
-				if (!isset($options['type'])) {
-					throw new PaymentProcessorException(__('No data type(s) defined for value %s!', $field));
-				}
-
 				if (isset($options['required']) && $options['required'] === true) {
 					if (!isset($this->_fields[$field])) {
 						throw new PaymentProcessorException(__('Required value %s is not set!', $field));
@@ -317,6 +313,11 @@ abstract class BasePaymentProcessor {
 						if ($this->validateType($type, $this->_fields[$field])) {
 							$typeFound = true;
 							break;
+						} else {
+							if (method_exists($this, $type)) {
+								$method = '_' . $type;
+								return $this->{$method}($action, $this->_fields[$field]);
+							}
 						}
 					}
 
@@ -424,6 +425,9 @@ abstract class BasePaymentProcessor {
 			return false;
 		}
 
+		if (!is_string($message)) {
+			$message = var_dump($message);
+		}
 		$type = 'payments-' . Inflector::underscore(__CLASS__) . '-' . $type;
 		return $this->_log->write($message, $type);
 	}
