@@ -40,7 +40,7 @@ class PaymentProcessors {
  * @throws MissingPaymentProcessorException
  * @return Processor Instance
  */
-	public function load($processor, $config, $options = array()) {
+	public static function load($processor, $config, $options = array()) {
 		$_this = PaymentProcessors::getInstance();
 
 		if (substr($processor, -9) != 'Processor') {
