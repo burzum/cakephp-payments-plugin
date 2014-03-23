@@ -4,6 +4,7 @@ App::uses('PaymentProcessorException', 'Payments.Error');
 App::uses('PaymentApiException', 'Payments.Error');
 App::uses('PaymentApiLog', 'Payments.Log');
 App::uses('PaymentStatus', 'Payments.Payment');
+App::uses('Hash', 'Utility');
 
 /**
  * BasePaymentProcessor
@@ -13,6 +14,11 @@ App::uses('PaymentStatus', 'Payments.Payment');
  * @license MIT
  */
 abstract class BasePaymentProcessor {
+
+/**
+ * Used to add OR conditions to field validations
+ */
+	const OR_CONDITION = 'OR';
 
 /**
  * Configuration settings for this processor
@@ -287,7 +293,7 @@ abstract class BasePaymentProcessor {
 			}
 		}
 
-		return $this->_fields[$field];
+		return Hash::get($this->_fields, $field);
 	}
 
 /**
@@ -304,37 +310,66 @@ abstract class BasePaymentProcessor {
 	public function validateFields($action) {
 		if (isset($this->_fieldRules[$action])) {
 			foreach($this->_fieldRules[$action] as $field => $options) {
-				if (isset($options['required']) && $options['required'] === true) {
-					if (!isset($this->_fields[$field])) {
-						throw new PaymentProcessorException(__('Required value %s is not set!', $field));
-					}
-				}
-
-				if (isset($options['type'])) {
-					if (is_string($options['type'])) {
-						$options['type'] = array($options['type']);
-					}
-
-					$typeFound = false;
-					foreach ($options['type'] as $type) {
-						if ($this->validateType($type, $this->_fields[$field])) {
-							$typeFound = true;
-							break;
-						} else {
-							if (method_exists($this, $type)) {
-								$method = '_' . $type;
-								return $this->{$method}($action, $this->_fields[$field]);
+				if ($field === self::OR_CONDITION) {
+					$orResult = false;
+					foreach($options as $innerField => $innerOptions) {
+						try {
+							if ($this->_validateField($innerField, $innerOptions)) {
+								$orResult = true;
 							}
+						} catch (PaymentProcessorException $ex) {
+							//ignore this field validation, because we are in an OR branch
 						}
 					}
-
-					if ($typeFound === false) {
-						throw new PaymentProcessorException(__('Invalid data type for value %s!', $field));
+					if (!$orResult) {
+						$orFields = array_keys($options);
+						throw new PaymentProcessorException(__('Required value is not set for at least one of those fields: %s', implode(', ', $orFields)));
 					}
 				}
+				$this->_validateField($field, $options);
 			}
 		}
 
+		return true;
+	}
+
+/**
+ * Validate a specific field
+ * @param type $field
+ * @param type $options
+ * @return type
+ * @throws PaymentProcessorException
+ */
+	protected function _validateField($field, $options = array()) {
+		$required = Hash::get($options, 'required');
+		if ($required === true) {
+			if (!isset($this->_fields[$field])) {
+				throw new PaymentProcessorException(__('Required value %s is not set!', $field));
+			}
+		}
+
+		if (isset($options['type'])) {
+			if (is_string($options['type'])) {
+				$options['type'] = array($options['type']);
+			}
+
+			$typeFound = false;
+			foreach ($options['type'] as $type) {
+				if ($this->validateType($type, $this->_fields[$field])) {
+					$typeFound = true;
+					break;
+				} else {
+					if (method_exists($this, $type)) {
+						$method = '_' . $type;
+						return $this->{$method}($action, $this->_fields[$field]);
+					}
+				}
+			}
+
+			if ($typeFound === false) {
+				throw new PaymentProcessorException(__('Invalid data type for value %s!', $field));
+			}
+		}
 		return true;
 	}
 
@@ -350,6 +385,7 @@ abstract class BasePaymentProcessor {
 			case 'string':
 				return is_string($value);
 			case 'integer':
+			case 'int':
 				return is_int($value);
 			case 'float':
 				return is_float($value);
