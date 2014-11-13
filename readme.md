@@ -1,5 +1,9 @@
 # CakePHP Payments Plugin #
 
+**Discontinued**. Go for another lib like https://github.com/thephpleague/omnipay. I would prefer the architecture of this  CakePHP plugin but maintaining this code alone is far beyond my available free time.
+
+---
+
 http://github.com/burzum/Payments
 
 This plugin is thought to provide a generic API for different payment processors.
